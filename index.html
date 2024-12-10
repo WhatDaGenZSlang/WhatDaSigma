@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Catch Game</title>
+    <title>Discord-Styled Catch Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,6 +12,17 @@
         <div id="basket"></div>
     </div>
     <p id="score">Score: 0 | Lives: 3 | Level: 1</p>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal">
+        <div id="game-over-content">
+            <h2>Game Over</h2>
+            <p id="final-score">Your Final Score: 0</p>
+            <p id="high-score">High Score: 0</p>
+            <button id="restart-button">Restart</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
