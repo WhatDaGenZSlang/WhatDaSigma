@@ -9,12 +9,6 @@ let items = [];
 let dropSpeed = 50;
 let level = 1;
 
-// Sound effects
-const catchSound = new Audio('catch.mp3');
-const missSound = new Audio('miss.mp3');
-const powerUpSound = new Audio('powerup.mp3');
-const gameOverSound = new Audio('gameover.mp3');
-
 // Control the basket
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft' && basketPosition > 0) {
@@ -25,12 +19,10 @@ document.addEventListener('keydown', (e) => {
     basket.style.left = `${basketPosition}px`;
 });
 
-// Generate random items (regular, power-up, penalty)
+// Generate random items
 function createItem() {
     const item = document.createElement('div');
     item.classList.add('item');
-
-    // Randomly assign item type: regular, power-up, or penalty
     const itemType = Math.random() < 0.1 ? 'power-up' : (Math.random() < 0.15 ? 'penalty' : 'regular');
     item.classList.add(itemType);
     item.style.left = `${Math.random() * 380}px`;
@@ -40,64 +32,66 @@ function createItem() {
     items.push(item);
 }
 
-// Update items' positions and check for catches/misses
+// Update item positions
 function updateItems() {
     items.forEach((item, index) => {
         const itemType = item.dataset.type;
         let itemPositionY = parseInt(item.style.top || 0) + 5;
-
         item.style.top = `${itemPositionY}px`;
 
-        // Check if item is caught
         if (itemPositionY >= 560 && Math.abs(parseInt(item.style.left) - basketPosition) < 60) {
-            if (itemType === 'regular') {
-                score++;
-                catchSound.play();
-            } else if (itemType === 'power-up') {
+            if (itemType === 'regular') score++;
+            else if (itemType === 'power-up') {
                 score += 5;
                 lives = Math.min(5, lives + 1);
-                powerUpSound.play();
             } else if (itemType === 'penalty') {
                 score -= 2;
                 lives = Math.max(0, lives - 1);
-                missSound.play();
             }
             item.remove();
             items.splice(index, 1);
             scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
-        }
-
-        // Check if item is missed
-        else if (itemPositionY > 600) {
-            if (itemType !== 'penalty') {
-                lives--;
-            }
+        } else if (itemPositionY > 600) {
+            if (itemType !== 'penalty') lives--;
             scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
             item.remove();
             items.splice(index, 1);
-
-            // Check if game is over
-            if (lives <= 0) {
-                gameOverSound.play();
-                alert(`Game Over! Final Score: ${score}`);
-                updateLeaderboard();
-                resetGame();
-            }
+            if (lives <= 0) showGameOverModal();
         }
     });
 }
 
-// Level and difficulty scaling
+// Level Up
 function levelUp() {
-    if (score > 0 && score % 20 === 0) { // Level up every 20 points
+    if (score > 0 && score % 20 === 0) {
         level++;
-        dropSpeed = Math.max(10, dropSpeed - 5);  // Increase difficulty
+        dropSpeed = Math.max(10, dropSpeed - 5);
         scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
         alert(`Level Up! Welcome to Level ${level}`);
     }
 }
 
-// Reset the game
+// Show Game Over Modal
+function showGameOverModal() {
+    const gameOverModal = document.getElementById('game-over-modal');
+    const finalScoreElement = document.getElementById('final-score');
+    const highScoreElement = document.getElementById('high-score');
+
+    finalScoreElement.textContent = `Your Final Score: ${score}`;
+    const highScore = localStorage.getItem('highScore') || 0;
+    if (score > highScore) localStorage.setItem('highScore', score);
+    highScoreElement.textContent = `High Score: ${Math.max(score, highScore)}`;
+
+    gameOverModal.style.display = 'flex';
+
+    const restartButton = document.getElementById('restart-button');
+    restartButton.onclick = () => {
+        gameOverModal.style.display = 'none';
+        resetGame();
+    };
+}
+
+// Reset Game
 function resetGame() {
     score = 0;
     lives = 3;
@@ -108,25 +102,12 @@ function resetGame() {
     items = [];
 }
 
-// Leaderboard
-function updateLeaderboard() {
-    const highScore = localStorage.getItem('highScore') || 0;
-    if (score > highScore) {
-        localStorage.setItem('highScore', score);
-        alert(`New High Score: ${score}!`);
-    } else {
-        alert(`Your Score: ${score}. High Score: ${highScore}`);
-    }
-}
-
-// Main game loop
+// Game Loop
 function gameLoop() {
-    if (Math.random() < 0.05) { // Spawn new item with some probability
-        createItem();
-    }
+    if (Math.random() < 0.05) createItem();
     updateItems();
     levelUp();
 }
 
-// Start the game
+// Start Game
 setInterval(gameLoop, dropSpeed);
