@@ -3,39 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord-Styled Catch Game</title>
+    <title>Discord-Like Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Catch the Falling Items!</h1>
     <div id="game-container">
         <div id="basket"></div>
     </div>
-    <p id="score">Score: 0 | Lives: 3 | Level: 1</p>
+    <div id="score">Score: 0 | Lives: 3 | Level: 1</div>
 
-    <!-- Game Over Modal -->
-    <div id="game-over-modal">
-        <div id="game-over-content">
-            <h2>Game Over</h2>
-            <p id="final-score">Your Final Score: 0</p>
-            <p id="high-score">High Score: 0</p>
-            <button id="restart-button">Restart</button>
+    <!-- Level Up Modal -->
+    <div id="level-up-modal">
+        <div id="level-up-content">
+            <h2 id="level-up-title">Level Up!</h2>
+            <p id="level-up-text">You're now on level <span id="current-level">1</span>!</p>
+            <button id="level-up-ok">Got it!</button>
         </div>
     </div>
 
     <!-- Cheat Menu -->
-<div id="cheat-menu">
-    <h2>Cheat Menu</h2>
-    <label for="cheat-speed">Ball Speed:</label>
-    <input type="number" id="cheat-speed" value="50"><br>
-    <label for="cheat-level">Level:</label>
-    <input type="number" id="cheat-level" value="1"><br>
-    <label for="cheat-lives">Lives:</label>
-    <input type="number" id="cheat-lives" value="3"><br>
-    <label for="cheat-score">Score:</label>
-    <input type="number" id="cheat-score" value="0"><br>
-    <button id="apply-cheats">Apply Cheats</button>
-</div>
+    <div id="cheat-menu">
+        <h3>Cheat Menu</h3>
+        <label for="cheat-speed">Ball Speed:</label>
+        <input id="cheat-speed" type="number" placeholder="Speed">
+        <label for="cheat-level">Level:</label>
+        <input id="cheat-level" type="number" placeholder="Level">
+        <label for="cheat-lives">Lives:</label>
+        <input id="cheat-lives" type="number" placeholder="Lives">
+        <label for="cheat-score">Score:</label>
+        <input id="cheat-score" type="number" placeholder="Score">
+        <button id="apply-cheats">Apply Cheats</button>
+    </div>
 
     <script src="script.js"></script>
 </body>
