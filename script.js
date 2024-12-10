@@ -7,6 +7,7 @@ const cheatLevelInput = document.getElementById('cheat-level');
 const cheatLivesInput = document.getElementById('cheat-lives');
 const cheatScoreInput = document.getElementById('cheat-score');
 const applyCheatsButton = document.getElementById('apply-cheats');
+let paused = false;
 
 let score = 0;
 let lives = 3;
@@ -18,7 +19,9 @@ let level = 1;
 // Open/Close Cheat Menu with F8
 document.addEventListener('keydown', (e) => {
     if (e.key === 'F8') {
-        cheatMenu.style.display = cheatMenu.style.display === 'none' || cheatMenu.style.display === '' ? 'block' : 'none';
+        const isMenuOpen = cheatMenu.style.display === 'block';
+        cheatMenu.style.display = isMenuOpen ? 'none' : 'block';
+        paused = !isMenuOpen; // Pause the game when menu is open
     }
 });
 // Control the basket
@@ -116,9 +119,11 @@ function resetGame() {
 
 // Game Loop
 function gameLoop() {
-    if (Math.random() < 0.05) createItem();
-    updateItems();
-    levelUp();
+    if (!paused) {
+        if (Math.random() < 0.05) createItem();
+        updateItems();
+        levelUp();
+    }
 }
 
 applyCheatsButton.addEventListener('click', () => {
@@ -135,10 +140,7 @@ applyCheatsButton.addEventListener('click', () => {
     scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
     alert('Cheats Applied!');
     cheatMenu.style.display = 'none';
+    paused = false; // Resume the game after applying cheats
 });
 
-
-
-
-// Start Game
 setInterval(gameLoop, dropSpeed);
