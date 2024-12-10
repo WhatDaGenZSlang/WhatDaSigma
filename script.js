@@ -70,9 +70,17 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.getElementById('apply-cheats').addEventListener('click', () => {
+    // Ensure the values are valid and apply the cheats
     dropSpeed = parseInt(document.getElementById('cheat-speed').value) || dropSpeed;
-        lives = parseInt(document.getElementById('cheat-lives').value) || lives;
+    level = parseInt(document.getElementById('cheat-level').value) || level;
+    lives = parseInt(document.getElementById('cheat-lives').value) || lives;
     score = parseInt(document.getElementById('cheat-score').value) || score;
+    
+    // Ensure that the score and lives remain valid and within expected ranges
+    if (lives < 0) lives = 0;
+    if (score < 0) score = 0;
+    
+    // Update the UI
     scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
     document.getElementById('cheat-menu').style.display = 'none';
 });
