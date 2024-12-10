@@ -1,13 +1,6 @@
 const basket = document.getElementById('basket');
 const gameContainer = document.getElementById('game-container');
 const scoreElement = document.getElementById('score');
-const cheatMenu = document.getElementById('cheat-menu');
-const cheatSpeedInput = document.getElementById('cheat-speed');
-const cheatLevelInput = document.getElementById('cheat-level');
-const cheatLivesInput = document.getElementById('cheat-lives');
-const cheatScoreInput = document.getElementById('cheat-score');
-const applyCheatsButton = document.getElementById('apply-cheats');
-let paused = false;
 
 let score = 0;
 let lives = 3;
@@ -15,23 +8,18 @@ let basketPosition = 160;
 let items = [];
 let dropSpeed = 50;
 let level = 1;
+let paused = false; // Track if the game is paused
 
-// Open/Close Cheat Menu with F8
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'F8') {
-        const isMenuOpen = cheatMenu.style.display === 'block';
-        cheatMenu.style.display = isMenuOpen ? 'none' : 'block';
-        paused = !isMenuOpen; // Pause the game when menu is open
-    }
-});
 // Control the basket
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft' && basketPosition > 0) {
-        basketPosition -= 20;
-    } else if (e.key === 'ArrowRight' && basketPosition < 320) {
-        basketPosition += 20;
+    if (!paused) {
+        if (e.key === 'ArrowLeft' && basketPosition > 0) {
+            basketPosition -= 20;
+        } else if (e.key === 'ArrowRight' && basketPosition < 320) {
+            basketPosition += 20;
+        }
+        basket.style.left = `${basketPosition}px`;
     }
-    basket.style.left = `${basketPosition}px`;
 });
 
 // Generate random items
@@ -117,15 +105,24 @@ function resetGame() {
     items = [];
 }
 
-// Game Loop
-function gameLoop() {
-    if (!paused) {
-        if (Math.random() < 0.05) createItem();
-        updateItems();
-        levelUp();
-    }
-}
+// Cheat Menu Logic
+const cheatMenu = document.getElementById('cheat-menu');
+const cheatSpeedInput = document.getElementById('cheat-speed');
+const cheatLevelInput = document.getElementById('cheat-level');
+const cheatLivesInput = document.getElementById('cheat-lives');
+const cheatScoreInput = document.getElementById('cheat-score');
+const applyCheatsButton = document.getElementById('apply-cheats');
 
+// Toggle Cheat Menu and Pause/Resume Game
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'F8') {
+        const isMenuOpen = cheatMenu.style.display === 'block';
+        cheatMenu.style.display = isMenuOpen ? 'none' : 'block';
+        paused = !isMenuOpen; // Pause the game when menu is open
+    }
+});
+
+// Apply Cheats and Resume Game
 applyCheatsButton.addEventListener('click', () => {
     const newSpeed = parseInt(cheatSpeedInput.value);
     const newLevel = parseInt(cheatLevelInput.value);
@@ -143,4 +140,14 @@ applyCheatsButton.addEventListener('click', () => {
     paused = false; // Resume the game after applying cheats
 });
 
+// Game Loop with Pause Check
+function gameLoop() {
+    if (!paused) {
+        if (Math.random() < 0.05) createItem();
+        updateItems();
+        levelUp();
+    }
+}
+
+// Start Game
 setInterval(gameLoop, dropSpeed);
