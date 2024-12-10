@@ -1,6 +1,12 @@
 const basket = document.getElementById('basket');
 const gameContainer = document.getElementById('game-container');
 const scoreElement = document.getElementById('score');
+const cheatMenu = document.getElementById('cheat-menu');
+const cheatSpeedInput = document.getElementById('cheat-speed');
+const cheatLevelInput = document.getElementById('cheat-level');
+const cheatLivesInput = document.getElementById('cheat-lives');
+const cheatScoreInput = document.getElementById('cheat-score');
+const applyCheatsButton = document.getElementById('apply-cheats');
 
 let score = 0;
 let lives = 3;
@@ -9,6 +15,12 @@ let items = [];
 let dropSpeed = 50;
 let level = 1;
 
+// Open/Close Cheat Menu with F8
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'F8') {
+        cheatMenu.style.display = cheatMenu.style.display === 'none' || cheatMenu.style.display === '' ? 'block' : 'none';
+    }
+});
 // Control the basket
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft' && basketPosition > 0) {
@@ -108,6 +120,25 @@ function gameLoop() {
     updateItems();
     levelUp();
 }
+
+applyCheatsButton.addEventListener('click', () => {
+    const newSpeed = parseInt(cheatSpeedInput.value);
+    const newLevel = parseInt(cheatLevelInput.value);
+    const newLives = parseInt(cheatLivesInput.value);
+    const newScore = parseInt(cheatScoreInput.value);
+
+    if (!isNaN(newSpeed) && newSpeed > 0) dropSpeed = newSpeed;
+    if (!isNaN(newLevel) && newLevel > 0) level = newLevel;
+    if (!isNaN(newLives) && newLives > 0) lives = newLives;
+    if (!isNaN(newScore) && newScore >= 0) score = newScore;
+
+    scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
+    alert('Cheats Applied!');
+    cheatMenu.style.display = 'none';
+});
+
+
+
 
 // Start Game
 setInterval(gameLoop, dropSpeed);
