@@ -8,146 +8,95 @@ let basketPosition = 160;
 let items = [];
 let dropSpeed = 50;
 let level = 1;
-let paused = false; // Track if the game is paused
+let paused = false;
 
-// Control the basket
+// Basket Movement
 document.addEventListener('keydown', (e) => {
     if (!paused) {
-        if (e.key === 'ArrowLeft' && basketPosition > 0) {
-            basketPosition -= 20;
-        } else if (e.key === 'ArrowRight' && basketPosition < 320) {
-            basketPosition += 20;
-        }
+        if (e.key === 'ArrowLeft' && basketPosition > 0) basketPosition -= 20;
+        else if (e.key === 'ArrowRight' && basketPosition < 320) basketPosition += 20;
         basket.style.left = `${basketPosition}px`;
     }
 });
 
-// Generate random items
+// Create Item
 function createItem() {
     const item = document.createElement('div');
     item.classList.add('item');
-    const itemType = Math.random() < 0.1 ? 'power-up' : (Math.random() < 0.15 ? 'penalty' : 'regular');
-    item.classList.add(itemType);
+    item.dataset.type = Math.random() < 0.1 ? 'power-up' : (Math.random() < 0.15 ? 'penalty' : 'regular');
     item.style.left = `${Math.random() * 380}px`;
-    item.dataset.type = itemType;
-
     gameContainer.appendChild(item);
     items.push(item);
 }
 
-// Update item positions
+// Update Items
 function updateItems() {
-    items.forEach((item, index) => {
-        const itemType = item.dataset.type;
-        let itemPositionY = parseInt(item.style.top || 0) + 5;
-        item.style.top = `${itemPositionY}px`;
-
-        if (itemPositionY >= 560 && Math.abs(parseInt(item.style.left) - basketPosition) < 60) {
-            if (itemType === 'regular') score++;
-            else if (itemType === 'power-up') {
-                score += 5;
-                lives = Math.min(5, lives + 1);
-            } else if (itemType === 'penalty') {
-                score -= 2;
-                lives = Math.max(0, lives - 1);
-            }
-            item.remove();
-            items.splice(index, 1);
-            scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
-        } else if (itemPositionY > 600) {
-            if (itemType !== 'penalty') lives--;
-            scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
-            item.remove();
-            items.splice(index, 1);
-            if (lives <= 0) showGameOverModal();
+    items.forEach((item, i) => {
+        item.style.top = `${(parseInt(item.style.top || 0) + 5)}px`;
+        if (parseInt(item.style.top) > 560 && Math.abs(parseInt(item.style.left) - basketPosition) < 60) {
+            const type = item.dataset.type;
+            if (type === 'regular') score++;
+            else if (type === 'power-up') { score += 5; lives = Math.min(5, lives + 1); }
+            else if (type === 'penalty') { score -= 2; lives--; }
+            item.remove(); items.splice(i, 1);
+            if (lives <= 0) resetGame();
         }
     });
+    scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
 }
 
 // Level Up
 function levelUp() {
-    if (score > 0 && score % 20 === 0) {
-        level++;
-        dropSpeed = Math.max(10, dropSpeed - 5);
-        scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
-        alert(`Level Up! Welcome to Level ${level}`);
+    if (score > 0 && score % 20 === 0) showLevelUpModal(++level);
+}
+
+function showLevelUpModal(level) {
+    paused = true;
+    document.getElementById('current-level').textContent = level;
+    document.getElementById('level-up-modal').style.display = 'flex';
+}
+
+document.getElementById('level-up-ok').addEventListener('click', () => {
+    paused = false;
+    document.getElementById('level-up-modal').style.display = 'none';
+});
+
+// Cheat Menu
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'F8') {
+        paused = !paused;
+        document.getElementById('cheat-menu').style.display = paused ? 'block' : 'none';
     }
-}
+});
 
-// Show Game Over Modal
-function showGameOverModal() {
-    const gameOverModal = document.getElementById('game-over-modal');
-    const finalScoreElement = document.getElementById('final-score');
-    const highScoreElement = document.getElementById('high-score');
+document.getElementById('apply-cheats').addEventListener('click', () => {
+    dropSpeed = parseInt(document.getElementById('cheat-speed').value) || dropSpeed;
+        lives = parseInt(document.getElementById('cheat-lives').value) || lives;
+    score = parseInt(document.getElementById('cheat-score').value) || score;
+    scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
+    document.getElementById('cheat-menu').style.display = 'none';
+});
 
-    finalScoreElement.textContent = `Your Final Score: ${score}`;
-    const highScore = localStorage.getItem('highScore') || 0;
-    if (score > highScore) localStorage.setItem('highScore', score);
-    highScoreElement.textContent = `High Score: ${Math.max(score, highScore)}`;
-
-    gameOverModal.style.display = 'flex';
-
-    const restartButton = document.getElementById('restart-button');
-    restartButton.onclick = () => {
-        gameOverModal.style.display = 'none';
-        resetGame();
-    };
-}
-
-// Reset Game
+// Game Reset
 function resetGame() {
     score = 0;
     lives = 3;
     level = 1;
     dropSpeed = 50;
-    scoreElement.textContent = 'Score: 0 | Lives: 3 | Level: 1';
+    scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
     items.forEach(item => item.remove());
     items = [];
 }
 
-// Cheat Menu Logic
-const cheatMenu = document.getElementById('cheat-menu');
-const cheatSpeedInput = document.getElementById('cheat-speed');
-const cheatLevelInput = document.getElementById('cheat-level');
-const cheatLivesInput = document.getElementById('cheat-lives');
-const cheatScoreInput = document.getElementById('cheat-score');
-const applyCheatsButton = document.getElementById('apply-cheats');
-
-// Toggle Cheat Menu and Pause/Resume Game
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'F8') {
-        const isMenuOpen = cheatMenu.style.display === 'block';
-        cheatMenu.style.display = isMenuOpen ? 'none' : 'block';
-        paused = !isMenuOpen; // Pause the game when menu is open
-    }
-});
-
-// Apply Cheats and Resume Game
-applyCheatsButton.addEventListener('click', () => {
-    const newSpeed = parseInt(cheatSpeedInput.value);
-    const newLevel = parseInt(cheatLevelInput.value);
-    const newLives = parseInt(cheatLivesInput.value);
-    const newScore = parseInt(cheatScoreInput.value);
-
-    if (!isNaN(newSpeed) && newSpeed > 0) dropSpeed = newSpeed;
-    if (!isNaN(newLevel) && newLevel > 0) level = newLevel;
-    if (!isNaN(newLives) && newLives > 0) lives = newLives;
-    if (!isNaN(newScore) && newScore >= 0) score = newScore;
-
-    scoreElement.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level}`;
-    alert('Cheats Applied!');
-    cheatMenu.style.display = 'none';
-    paused = false; // Resume the game after applying cheats
-});
-
-// Game Loop with Pause Check
+// Game Loop
 function gameLoop() {
     if (!paused) {
-        if (Math.random() < 0.05) createItem();
+        createItem();
         updateItems();
         levelUp();
     }
+    setTimeout(gameLoop, dropSpeed);
 }
 
-// Start Game
-setInterval(gameLoop, dropSpeed);
+// Start the Game Loop
+gameLoop();
